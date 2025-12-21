@@ -44,9 +44,9 @@ EOF
 bashio::log.info "Starting Claude Code terminal on port 7681..."
 
 # Start ttyd with Claude Code
-# --writable allows input, --base-path for ingress
+# --writable allows input
+# Note: HA ingress handles path routing, so no --base-path needed
 exec ttyd \
     --port 7681 \
     --writable \
-    --base-path "$(bashio::addon.ingress_entry)" \
     claude
