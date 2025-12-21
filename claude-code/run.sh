@@ -14,8 +14,13 @@ fi
 export HOME=/root
 export CLAUDE_CODE_DISABLE_NONINTERACTIVE_HINT=1
 
-# Create .claude directory for settings
-mkdir -p /root/.claude
+# Use /data for persistent storage (survives container restarts)
+# This stores Claude Code auth tokens and settings
+mkdir -p /data/.claude
+rm -rf /root/.claude
+ln -sf /data/.claude /root/.claude
+
+bashio::log.info "Claude Code config stored persistently in /data/.claude"
 
 # Create a CLAUDE.md with HA context
 cat > /config/CLAUDE.md << 'EOF'

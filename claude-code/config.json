@@ -1,7 +1,7 @@
 {
   "name": "Claude Code Terminal",
   "description": "Claude Code CLI with web terminal access and full config management",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "slug": "claude_code",
   "url": "https://github.com/nateober/ha-claude-code-addon",
   "stage": "experimental",
