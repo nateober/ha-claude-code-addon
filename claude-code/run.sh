@@ -117,7 +117,8 @@ ZSHRC
 
 # Configure tmux for better terminal handling
 cat > /root/.tmux.conf << 'TMUXCONF'
-set -g mouse on
+# Mouse off so browser text selection works normally
+set -g mouse off
 set -g history-limit 50000
 set -g default-terminal "xterm-256color"
 set -ga terminal-overrides ",xterm-256color:Tc"
