@@ -116,9 +116,9 @@ source /data/.claude_env 2>/dev/null || true
 ZSHRC
 
 # Configure tmux for better terminal handling
+# Tip: Hold Shift while selecting to copy text
 cat > /root/.tmux.conf << 'TMUXCONF'
-# Mouse off so browser text selection works normally
-set -g mouse off
+set -g mouse on
 set -g history-limit 50000
 set -g default-terminal "xterm-256color"
 set -ga terminal-overrides ",xterm-256color:Tc"
