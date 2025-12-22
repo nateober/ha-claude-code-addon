@@ -1,7 +1,7 @@
 {
   "name": "Claude Code for Home Assistant",
   "description": "Claude Code CLI with web terminal, full config management, and MCP integration for smart home control",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "slug": "claude_code",
   "url": "https://github.com/nateober/ha-claude-code-addon",
   "stage": "experimental",

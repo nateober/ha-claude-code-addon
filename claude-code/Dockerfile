@@ -25,12 +25,9 @@ RUN apk add --no-cache \
 # Install oh-my-zsh for better shell experience
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 
-# Copy helper scripts
-COPY rootfs /
-
-# Set permissions
-RUN chmod +x /usr/local/bin/* 2>/dev/null || true \
-    && chmod +x /etc/s6-overlay/s6-rc.d/*/run 2>/dev/null || true
+# Copy run script
+COPY run.sh /run.sh
+RUN chmod +x /run.sh
 
 # Create working directory
 WORKDIR /config
