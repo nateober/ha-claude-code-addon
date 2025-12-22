@@ -149,9 +149,7 @@ tmux kill-server 2>/dev/null || true
 
 # Start ttyd with the wrapper script
 # --writable allows input
-# --reconnect 3 auto-reconnects after 3 seconds if disconnected
 exec ttyd \
     --port 7681 \
     --writable \
-    --reconnect 3 \
     /usr/local/bin/claude-terminal
