@@ -4,7 +4,8 @@ build_from:
 args:
   BUILD_FROM: ghcr.io/hassio-addons/base:16.3.2
 labels:
-  org.opencontainers.image.title: "Claude Code Terminal"
-  org.opencontainers.image.description: "Claude Code CLI with web terminal for Home Assistant"
-  org.opencontainers.image.source: "https://github.com/anthropics/claude-code"
+  org.opencontainers.image.title: "Claude Code for Home Assistant"
+  org.opencontainers.image.description: "Claude Code CLI with web terminal and MCP integration for smart home control"
+  org.opencontainers.image.source: "https://github.com/nateober/ha-claude-code-addon"
   org.opencontainers.image.licenses: "MIT"
+  org.opencontainers.image.authors: "Nate Ober"

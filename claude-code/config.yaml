@@ -1,6 +1,6 @@
-name: "Claude Code Terminal"
-description: "Claude Code CLI with web terminal access and full config management"
-version: "1.0.2"
+name: "Claude Code for Home Assistant"
+description: "Claude Code CLI with web terminal, full config management, and MCP integration for smart home control"
+version: "2.0.3"
 slug: "claude_code"
 url: "https://github.com/nateober/ha-claude-code-addon"
 stage: experimental
@@ -12,7 +12,7 @@ homeassistant_api: true
 hassio_api: true
 ingress: true
 ingress_port: 7681
-panel_icon: "mdi:console"
+panel_icon: "mdi:robot"
 panel_title: "Claude Code"
 startup: application
 map:
@@ -23,7 +23,11 @@ map:
   - share:rw
 options:
   anthropic_api_key: ""
+  enable_ha_mcp: true
+  ha_mcp_url: ""
 schema:
   anthropic_api_key: str?
+  enable_ha_mcp: bool?
+  ha_mcp_url: str?
 environment:
   TERM: xterm-256color

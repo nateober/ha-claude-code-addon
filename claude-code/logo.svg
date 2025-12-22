@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" width="400" height="100">
+  <defs>
+    <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#D97757;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#CC5D3E;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Icon -->
+  <circle cx="50" cy="50" r="40" fill="url(#logoGrad)"/>
+  <path d="M62 30c-6-6-15-7.5-22.5-4.5S27 35.5 27 45c0 9.5 6 16.5 13.5 19.5s16.5 1.5 22.5-4.5"
+        stroke="white" stroke-width="6" stroke-linecap="round" fill="none"/>
+  <path d="M50 60l-10-9v-12l10-9 10 9v12z" fill="white" fill-opacity="0.9"/>
+  <rect x="47" y="51" width="6" height="9" fill="#D97757"/>
+  <!-- Text -->
+  <text x="110" y="42" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="600" fill="#1A1A1A">Claude Code</text>
+  <text x="110" y="70" font-family="system-ui, -apple-system, sans-serif" font-size="16" fill="#666">for Home Assistant</text>
+</svg>
