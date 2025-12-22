@@ -100,9 +100,9 @@ bashio::log.info "Starting Claude Code terminal on port 7681..."
 # This ensures tmux sessions have access to all required variables
 cat > /data/.claude_env << EOF
 export HOME=/root
-export ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY}"
+export ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-}"
 export CLAUDE_CODE_DISABLE_NONINTERACTIVE_HINT=1
-export SUPERVISOR_TOKEN="${SUPERVISOR_TOKEN}"
+export SUPERVISOR_TOKEN="${SUPERVISOR_TOKEN:-}"
 export TERM=xterm-256color
 EOF
 
