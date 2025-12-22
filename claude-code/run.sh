@@ -127,6 +127,9 @@ set -g status off
 set -g remain-on-exit on
 TMUXCONF
 
+# Create wrapper script directory and script
+mkdir -p /usr/local/bin
+
 # Create a wrapper script that ttyd will call
 # This script attaches to existing session or creates new one
 cat > /usr/local/bin/claude-terminal << 'WRAPPER'
