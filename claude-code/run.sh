@@ -98,6 +98,25 @@ else
     bashio::log.info "Existing CLAUDE.md found, preserving it"
 fi
 
+# Start API server if enabled
+ENABLE_API=$(bashio::config 'enable_api' 'true')
+API_PORT=$(bashio::config 'api_port' '8080')
+DEFAULT_MODEL=$(bashio::config 'default_model' 'sonnet')
+
+if [ "$ENABLE_API" = "true" ]; then
+    bashio::log.info "Starting Claude Code API server on port ${API_PORT}..."
+    API_PORT="${API_PORT}" \
+    DEFAULT_MODEL="${DEFAULT_MODEL}" \
+    SUPERVISOR_TOKEN="${SUPERVISOR_TOKEN:-}" \
+    ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-}" \
+    HOME=/root \
+    NODE_PATH="$(npm root -g)" \
+    node /api-server.js &
+    bashio::log.info "API server started — POST to /api/prompt to send prompts"
+else
+    bashio::log.info "Claude Code API server disabled"
+fi
+
 bashio::log.info "Starting Claude Code terminal on port 7681..."
 
 # Write environment to a file that persists for the session

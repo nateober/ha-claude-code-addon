@@ -1,6 +1,6 @@
 name: "Claude Code for Home Assistant"
 description: "Claude Code CLI with web terminal, full config management, and MCP integration for smart home control"
-version: "2.1.0"
+version: "2.2.0"
 slug: "claude_code"
 url: "https://github.com/nateober/ha-claude-code-addon"
 stage: experimental
@@ -21,13 +21,23 @@ map:
   - addons:ro
   - backup:rw
   - share:rw
+ports:
+  "8080/tcp": null
+ports_description:
+  "8080/tcp": "Claude Code API (optional, for direct access outside ingress)"
 options:
   anthropic_api_key: ""
   enable_ha_mcp: true
   ha_mcp_url: ""
+  enable_api: true
+  api_port: 8080
+  default_model: "sonnet"
 schema:
   anthropic_api_key: str?
   enable_ha_mcp: bool?
   ha_mcp_url: str?
+  enable_api: bool?
+  api_port: int?
+  default_model: str?
 environment:
   TERM: xterm-256color

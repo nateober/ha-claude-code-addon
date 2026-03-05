@@ -75,6 +75,82 @@ Ask Claude things like:
 - "Lock the front door"
 - "Is the garage door open?"
 
+## REST API for Automations
+
+The addon includes a REST API that lets HA automations send prompts to Claude and get intelligent responses back.
+
+### Configuration
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `enable_api` | Enable the REST API server | `true` |
+| `api_port` | Port for the API server | `8080` |
+| `default_model` | Default Claude model (`sonnet`, `opus`, `haiku`) | `sonnet` |
+
+### API Endpoints
+
+**`GET /api/health`** — Health check
+
+**`POST /api/prompt`** — Send a prompt to Claude
+
+```json
+{
+  "prompt": "Is the garage door open?",
+  "model": "sonnet",
+  "async": false,
+  "allow_actions": false,
+  "timeout": 60,
+  "system_prompt": "You are a home security assistant."
+}
+```
+
+Only `prompt` is required. By default, Claude can only **read** state (sensors, devices, config files). Set `allow_actions: true` to let Claude control devices.
+
+### Sync Response
+
+```json
+{
+  "request_id": "abc-123",
+  "status": "completed",
+  "response": "The garage door is currently open. It has been open since 11:42 PM.",
+  "model": "sonnet",
+  "duration_ms": 4200
+}
+```
+
+### Async Mode
+
+Set `"async": true` to get an immediate response with a `request_id`. When Claude finishes, it fires a `claude_code_response` event in Home Assistant with the full result.
+
+### HA Automation Example
+
+```yaml
+# In configuration.yaml
+rest_command:
+  ask_claude:
+    url: "http://0d958c1d-claude-code:8080/api/prompt"
+    method: POST
+    content_type: application/json
+    payload: '{{ payload }}'
+    timeout: 120
+
+# In automations.yaml
+- alias: "Late night garage door check"
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.garage_door
+      to: "on"
+      for: "00:30:00"
+  condition:
+    - condition: time
+      after: "22:00:00"
+  action:
+    - service: rest_command.ask_claude
+      data:
+        payload: >-
+          {"prompt": "The garage door has been open for 30 minutes after 10pm. Check who is home and what the weather is like. If it seems like it was left open by mistake, close it.", "allow_actions": true}
+```
+
 ## Technical Details
 
 - The addon uses the Home Assistant Supervisor token for MCP authentication

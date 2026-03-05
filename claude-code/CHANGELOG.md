@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.2.0] - 2026-03-04
+
+### Added
+- **REST API for automations** — `POST /api/prompt` to send prompts to Claude programmatically
+- **Sync and async modes** — sync waits for response; async returns immediately and fires `claude_code_response` HA event when done
+- **Read-only by default** — API requests can only query state unless `allow_actions: true` is set
+- **Configurable model** — default model in addon settings (default: sonnet), override per request
+- **Health endpoint** — `GET /api/health` for monitoring
+- New config options: `enable_api`, `api_port`, `default_model`
+
 ## [2.1.0] - 2026-03-04
 
 ### Changed

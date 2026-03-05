@@ -22,6 +22,12 @@ RUN apk add --no-cache \
     shadow \
     && npm install -g @anthropic-ai/claude-code@2.1.69
 
+# Install Express for API server
+RUN npm install -g express
+
+# Copy API server
+COPY api-server.js /api-server.js
+
 # Install oh-my-zsh for better shell experience
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 
@@ -32,7 +38,8 @@ RUN chmod +x /run.sh
 # Create working directory
 WORKDIR /config
 
-# Expose ttyd port (ingress)
+# Expose ttyd port (ingress) and API port
 EXPOSE 7681
+EXPOSE 8080
 
 CMD ["/run.sh"]
