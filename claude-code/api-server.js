@@ -57,8 +57,7 @@ function runClaude(prompt, options = {}) {
       '--output-format', 'json',
       '--model', model,
       '--dangerously-skip-permissions',
-      '--no-session-persistence',
-      '--debug-file', '/tmp/claude-debug.log'
+      '--no-session-persistence'
     ];
 
     if (!allowActions) {
@@ -72,10 +71,8 @@ function runClaude(prompt, options = {}) {
       args.push('--system-prompt', systemPrompt);
     }
 
-    args.push('--');
-    args.push(prompt);
-
-    console.log('[claude] spawning:', 'claude', args.join(' '));
+    // Prompt is passed via stdin to avoid variadic CLI flags consuming it
+    console.log('[claude] spawning:', 'claude', args.join(' '), '(prompt via stdin)');
 
     const startTime = Date.now();
     let stdout = '';
@@ -89,6 +86,10 @@ function runClaude(prompt, options = {}) {
       cwd: '/config',
       env
     });
+
+    // Send prompt via stdin
+    proc.stdin.write(prompt);
+    proc.stdin.end();
 
     // Handle timeout manually since spawn doesn't support it
     const timer = setTimeout(() => {
