@@ -25,7 +25,7 @@ RUN apk add --no-cache \
 # Install Express for API server
 RUN npm install -g express
 
-# Copy API server
+# Copy API server (v2.3.1)
 COPY api-server.js /api-server.js
 
 # Install oh-my-zsh for better shell experience
