@@ -55,7 +55,10 @@ function runClaude(prompt, options = {}) {
     ];
 
     if (!allowActions) {
-      args.push('--allowedTools', READ_ONLY_TOOLS);
+      // Read-only: skip MCP to avoid connection delays, only allow file reads
+      args.push('--allowedTools', 'Read,Grep,Glob');
+      args.push('--strict-mcp-config');
+      args.push('--mcp-config', '{}');
     }
 
     if (systemPrompt) {
