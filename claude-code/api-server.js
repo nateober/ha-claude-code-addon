@@ -65,6 +65,9 @@ function runClaude(prompt, options = {}) {
       args.push('--allowedTools', 'Read,Grep,Glob');
       args.push('--strict-mcp-config');
       args.push('--mcp-config', EMPTY_MCP_PATH);
+    } else {
+      // Action mode: allow all MCP tools + file tools + bash
+      args.push('--allowedTools', 'Read,Grep,Glob,Edit,Write,Bash,mcp__homeassistant__*');
     }
 
     if (systemPrompt) {
@@ -168,7 +171,7 @@ app.get('/api/diag', async (req, res) => {
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
-    version: '2.3.4',
+    version: '2.3.5',
     api_key_set: !!process.env.ANTHROPIC_API_KEY
   });
 });

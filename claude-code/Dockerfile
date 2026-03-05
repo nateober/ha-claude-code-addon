@@ -27,7 +27,7 @@ RUN apk add --no-cache \
 RUN npm install -g express
 
 # Copy API server
-ARG API_VERSION=2.3.4
+ARG API_VERSION=2.3.5
 COPY api-server.js /api-server.js
 
 # Install oh-my-zsh for better shell experience
