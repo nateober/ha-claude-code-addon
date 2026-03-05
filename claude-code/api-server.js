@@ -71,6 +71,7 @@ function runClaude(prompt, options = {}) {
       args.push('--system-prompt', systemPrompt);
     }
 
+    args.push('--');
     args.push(prompt);
 
     console.log('[claude] spawning:', 'claude', args.join(' '));
