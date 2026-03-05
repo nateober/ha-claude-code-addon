@@ -116,7 +116,7 @@ function runClaude(prompt, options = {}) {
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', version: '2.2.0' });
+  res.json({ status: 'ok', version: '2.2.1' });
 });
 
 // Main prompt endpoint
