@@ -129,7 +129,11 @@ function runClaude(prompt, options = {}) {
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', version: '2.2.1' });
+  res.json({
+    status: 'ok',
+    version: '2.2.6',
+    api_key_set: !!process.env.ANTHROPIC_API_KEY
+  });
 });
 
 // Main prompt endpoint
@@ -145,6 +149,10 @@ app.post('/api/prompt', async (req, res) => {
 
   if (!prompt) {
     return res.status(400).json({ error: 'prompt is required' });
+  }
+
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return res.status(503).json({ error: 'ANTHROPIC_API_KEY not configured. Set it in the addon settings.' });
   }
 
   const requestId = crypto.randomUUID();
