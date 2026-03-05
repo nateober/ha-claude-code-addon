@@ -61,7 +61,8 @@ else
     rm -f /config/.mcp.json
 fi
 
-# Create a CLAUDE.md with HA context
+# Create a CLAUDE.md with HA context (only if one doesn't already exist)
+if [ ! -f /config/CLAUDE.md ]; then
 cat > /config/CLAUDE.md << 'EOF'
 # Home Assistant Configuration
 
@@ -93,6 +94,9 @@ Run `ha core restart` to apply changes.
 - `ha core logs` - View HA logs
 - `ha addons` - List add-ons
 EOF
+else
+    bashio::log.info "Existing CLAUDE.md found, preserving it"
+fi
 
 bashio::log.info "Starting Claude Code terminal on port 7681..."
 
@@ -142,8 +146,8 @@ if tmux has-session -t claude 2>/dev/null; then
     # Attach to existing session
     exec tmux attach-session -t claude
 else
-    # Create new session with claude
-    exec tmux new-session -s claude -c /config "source /data/.claude_env && claude"
+    # Create new session with claude (restarts on Ctrl-C / exit)
+    exec tmux new-session -s claude -c /config "source /data/.claude_env && while true; do claude; echo 'Claude exited. Restarting in 2s... (Ctrl-C again to get a shell)'; sleep 2; done"
 fi
 WRAPPER
 chmod +x /usr/local/bin/claude-terminal
@@ -156,4 +160,5 @@ tmux kill-server 2>/dev/null || true
 exec ttyd \
     --port 7681 \
     --writable \
+    --reconnect 3 \
     /usr/local/bin/claude-terminal

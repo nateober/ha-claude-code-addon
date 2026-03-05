@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.1.0] - 2026-03-04
+
+### Changed
+- **Pinned Claude Code version** to 2.1.69 for reproducible builds
+- **Auto-restart on exit** - Claude Code restarts automatically after Ctrl-C with a 2s grace period (Ctrl-C again during wait drops to shell)
+
+### Fixed
+- **No longer overwrites CLAUDE.md** on every startup - only creates if missing
+- **Added ttyd `--reconnect`** for automatic browser reconnection
+
 ## [2.0.3] - 2024-12-21
 
 ### Fixed

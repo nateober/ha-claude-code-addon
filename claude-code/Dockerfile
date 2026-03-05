@@ -20,7 +20,7 @@ RUN apk add --no-cache \
     less \
     ncurses \
     shadow \
-    && npm install -g @anthropic-ai/claude-code
+    && npm install -g @anthropic-ai/claude-code@2.1.69
 
 # Install oh-my-zsh for better shell experience
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
