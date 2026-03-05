@@ -151,9 +151,6 @@ app.post('/api/prompt', async (req, res) => {
     return res.status(400).json({ error: 'prompt is required' });
   }
 
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return res.status(503).json({ error: 'ANTHROPIC_API_KEY not configured. Set it in the addon settings.' });
-  }
 
   const requestId = crypto.randomUUID();
 
