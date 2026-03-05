@@ -20,20 +20,13 @@ RUN apk add --no-cache \
     less \
     ncurses \
     shadow \
-    libgcc \
-    libstdc++ \
-    ripgrep
-
-# Install Claude Code via native installer
-WORKDIR /tmp
-RUN curl -fsSL https://claude.ai/install.sh | bash
-WORKDIR /
+    && npm install -g @anthropic-ai/claude-code
 
 # Install Express for API server
 RUN npm install -g express
 
 # Copy API server
-ARG API_VERSION=2.4.0
+ARG API_VERSION=2.4.1
 COPY api-server.js /api-server.js
 
 # Install oh-my-zsh for better shell experience
