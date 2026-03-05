@@ -1,8 +1,7 @@
 ARG BUILD_FROM
 FROM ${BUILD_FROM}
 
-
-# Install comprehensive toolset
+# Install system tools
 RUN apk add --no-cache \
     nodejs \
     npm \
@@ -21,13 +20,20 @@ RUN apk add --no-cache \
     less \
     ncurses \
     shadow \
-    && npm install -g @anthropic-ai/claude-code@2.1.69
+    libgcc \
+    libstdc++ \
+    ripgrep
+
+# Install Claude Code via native installer
+WORKDIR /tmp
+RUN curl -fsSL https://claude.ai/install.sh | bash
+WORKDIR /
 
 # Install Express for API server
 RUN npm install -g express
 
 # Copy API server
-ARG API_VERSION=2.3.5
+ARG API_VERSION=2.4.0
 COPY api-server.js /api-server.js
 
 # Install oh-my-zsh for better shell experience
