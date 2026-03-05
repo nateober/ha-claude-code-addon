@@ -50,7 +50,8 @@ function runClaude(prompt, options = {}) {
       '-p',
       '--output-format', 'json',
       '--model', model,
-      '--dangerously-skip-permissions'
+      '--dangerously-skip-permissions',
+      '--no-session-persistence'
     ];
 
     if (!allowActions) {
@@ -62,6 +63,8 @@ function runClaude(prompt, options = {}) {
     }
 
     args.push(prompt);
+
+    console.log('[claude] spawning:', 'claude', args.join(' '));
 
     const startTime = Date.now();
     let stdout = '';
