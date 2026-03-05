@@ -1,6 +1,7 @@
 ARG BUILD_FROM
 FROM ${BUILD_FROM}
 
+
 # Install comprehensive toolset
 RUN apk add --no-cache \
     nodejs \
@@ -25,7 +26,8 @@ RUN apk add --no-cache \
 # Install Express for API server
 RUN npm install -g express
 
-# Copy API server (v2.3.1)
+# Copy API server
+ARG API_VERSION=2.3.3
 COPY api-server.js /api-server.js
 
 # Install oh-my-zsh for better shell experience
