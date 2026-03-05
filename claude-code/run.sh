@@ -168,15 +168,14 @@ mkdir -p /usr/local/bin
 cat > /usr/local/bin/claude-terminal << 'WRAPPER'
 #!/bin/bash
 source /data/.claude_env 2>/dev/null || true
+cd /config
 
-# Check if tmux session exists
-if tmux has-session -t claude 2>/dev/null; then
-    # Attach to existing session
-    exec tmux attach-session -t claude
-else
-    # Create new session with claude (restarts on Ctrl-C / exit)
-    exec tmux new-session -s claude -c /config "source /data/.claude_env && while true; do claude; echo 'Claude exited. Restarting in 2s... (Ctrl-C again to get a shell)'; sleep 2; done"
-fi
+# Restart loop — claude restarts after Ctrl-C
+while true; do
+    claude
+    echo 'Claude exited. Restarting in 2s... (Ctrl-C again to get a shell)'
+    sleep 2
+done
 WRAPPER
 chmod +x /usr/local/bin/claude-terminal
 
@@ -188,5 +187,4 @@ tmux kill-server 2>/dev/null || true
 exec ttyd \
     --port 7681 \
     --writable \
-    --reconnect 3 \
     /usr/local/bin/claude-terminal
