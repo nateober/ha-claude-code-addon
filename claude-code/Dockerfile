@@ -20,13 +20,13 @@ RUN apk add --no-cache \
     less \
     ncurses \
     shadow \
-    && npm install -g @anthropic-ai/claude-code
+    && npm install -g @anthropic-ai/claude-code@2.1.69
 
 # Install Express for API server
 RUN npm install -g express
 
 # Copy API server
-ARG API_VERSION=2.4.1
+ARG API_VERSION=2.4.2
 COPY api-server.js /api-server.js
 
 # Install oh-my-zsh for better shell experience

@@ -171,7 +171,7 @@ app.get('/api/diag', async (req, res) => {
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
-    version: '2.4.1',
+    version: '2.4.2',
     api_key_set: !!process.env.ANTHROPIC_API_KEY
   });
 });
