@@ -144,6 +144,14 @@ app.get('/api/diag', async (req, res) => {
   } catch (e) {
     results.auth_error = e.stderr ? e.stderr.toString().trim() : e.message;
   }
+  // Quick test: run claude -p with minimal flags
+  try {
+    results.test = execFileSync('claude', ['-p', '--output-format', 'text', '--no-session-persistence', '--tools', '', 'Say hi'], {
+      env, timeout: 30000, cwd: '/config'
+    }).toString().trim();
+  } catch (e) {
+    results.test_error = (e.stderr ? e.stderr.toString().trim() : '') + ' | ' + (e.stdout ? e.stdout.toString().trim() : '') + ' | exit:' + e.status;
+  }
   results.env_keys = Object.keys(process.env).filter(k => k.match(/CLAUDE|ANTHROPIC|SUPERVISOR|HOME/i));
   results.claude_json_exists = fs.existsSync('/root/.claude.json');
   results.claude_dir = fs.existsSync('/root/.claude');
