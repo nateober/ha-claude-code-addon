@@ -1,8 +1,6 @@
 build_from:
-  aarch64: ghcr.io/hassio-addons/base:16.3.2
-  amd64: ghcr.io/hassio-addons/base:16.3.2
-args:
-  BUILD_FROM: ghcr.io/hassio-addons/base:16.3.2
+  aarch64: node:20-slim
+  amd64: node:20-slim
 labels:
   org.opencontainers.image.title: "Claude Code for Home Assistant"
   org.opencontainers.image.description: "Claude Code CLI with web terminal and MCP integration for smart home control"

@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.5.0] - 2026-03-05
+
+### Changed
+- **Switched to Debian base image** (`node:20-slim`) for native Claude Code installer support
+- **Native Claude Code binary** — eliminates npm deprecation warning, uses official `claude.ai/install.sh`
+- **Removed bashio dependency** — run.sh now uses plain bash + jq for config reading
+- **ttyd installed from GitHub releases** — architecture-aware binary download
+- **Added oh-my-zsh** for improved shell experience
+
 ## [2.2.0] - 2026-03-04
 
 ### Added

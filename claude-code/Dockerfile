@@ -1,32 +1,38 @@
-ARG BUILD_FROM
-FROM ${BUILD_FROM}
+FROM node:20-slim
 
 # Install system tools
-RUN apk add --no-cache \
-    nodejs \
-    npm \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     openssh-client \
     curl \
     jq \
-    yq \
-    ttyd \
     tmux \
     zsh \
-    zsh-vcs \
     bash \
     vim \
     nano \
     less \
-    ncurses \
-    shadow \
-    && npm install -g @anthropic-ai/claude-code@2.1.69
+    ncurses-bin \
+    procps \
+    ca-certificates \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install ttyd from GitHub releases (not in Debian repos)
+RUN ARCH=$(dpkg --print-architecture) && \
+    curl -fsSL "https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.${ARCH}" -o /usr/local/bin/ttyd && \
+    chmod +x /usr/local/bin/ttyd
+
+# Install Claude Code via native installer
+WORKDIR /tmp
+RUN curl -fsSL https://claude.ai/install.sh | bash
+ENV PATH="/root/.local/bin:${PATH}"
+WORKDIR /
 
 # Install Express for API server
 RUN npm install -g express
 
 # Copy API server
-ARG API_VERSION=2.4.2
+ARG API_VERSION=2.5.0
 COPY api-server.js /api-server.js
 
 # Install oh-my-zsh for better shell experience

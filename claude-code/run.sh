@@ -1,13 +1,29 @@
-#!/usr/bin/with-contenv bashio
+#!/bin/bash
 # shellcheck shell=bash
 set -e
 
+# Helper: read addon config from /data/options.json using jq
+config_value() {
+    local key="$1"
+    local default="$2"
+    local val
+    val=$(jq -r ".${key} // empty" /data/options.json 2>/dev/null)
+    echo "${val:-$default}"
+}
+
+config_has_value() {
+    local key="$1"
+    local val
+    val=$(jq -r ".${key} // empty" /data/options.json 2>/dev/null)
+    [ -n "$val" ]
+}
+
 # Get configuration
-if bashio::config.has_value 'anthropic_api_key'; then
-    export ANTHROPIC_API_KEY=$(bashio::config 'anthropic_api_key')
-    bashio::log.info "Anthropic API key configured"
+if config_has_value 'anthropic_api_key'; then
+    export ANTHROPIC_API_KEY=$(config_value 'anthropic_api_key')
+    echo "[INFO] Anthropic API key configured"
 else
-    bashio::log.warning "No Anthropic API key set - configure in add-on settings"
+    echo "[WARN] No Anthropic API key set - configure in add-on settings"
 fi
 
 # Set up environment
@@ -20,31 +36,31 @@ mkdir -p /data/.claude
 rm -rf /root/.claude
 ln -sf /data/.claude /root/.claude
 
-bashio::log.info "Claude Code config stored persistently in /data/.claude"
+echo "[INFO] Claude Code config stored persistently in /data/.claude"
 
 # Restore .claude.json from backup if missing
 if [ ! -f /root/.claude.json ] && [ -d /root/.claude/backups ]; then
     BACKUP=$(ls -t /root/.claude/backups/.claude.json.backup.* 2>/dev/null | head -1)
     if [ -n "$BACKUP" ]; then
         cp "$BACKUP" /root/.claude.json
-        bashio::log.info "Restored .claude.json from backup: $BACKUP"
+        echo "[INFO] Restored .claude.json from backup: $BACKUP"
     fi
 fi
 
 # Configure Home Assistant MCP integration
-ENABLE_HA_MCP=$(bashio::config 'enable_ha_mcp' 'true')
-HA_MCP_URL=$(bashio::config 'ha_mcp_url' '')
+ENABLE_HA_MCP=$(config_value 'enable_ha_mcp' 'true')
+HA_MCP_URL=$(config_value 'ha_mcp_url' '')
 
 if [ "$ENABLE_HA_MCP" = "true" ]; then
-    bashio::log.info "Configuring Home Assistant MCP integration..."
+    echo "[INFO] Configuring Home Assistant MCP integration..."
 
     # Determine MCP URL - use custom URL or default to Supervisor proxy
     if [ -n "$HA_MCP_URL" ]; then
         MCP_ENDPOINT="$HA_MCP_URL"
-        bashio::log.info "Using custom MCP URL: $MCP_ENDPOINT"
+        echo "[INFO] Using custom MCP URL: $MCP_ENDPOINT"
     else
         MCP_ENDPOINT="http://supervisor/core/api/mcp"
-        bashio::log.info "Using Supervisor proxy for MCP: $MCP_ENDPOINT"
+        echo "[INFO] Using Supervisor proxy for MCP: $MCP_ENDPOINT"
     fi
 
     # Create .mcp.json with Home Assistant MCP configuration
@@ -63,9 +79,9 @@ if [ "$ENABLE_HA_MCP" = "true" ]; then
 }
 EOF
 
-    bashio::log.info "Home Assistant MCP configured - Claude can now control your smart home!"
+    echo "[INFO] Home Assistant MCP configured - Claude can now control your smart home!"
 else
-    bashio::log.info "Home Assistant MCP integration disabled"
+    echo "[INFO] Home Assistant MCP integration disabled"
     # Remove any existing MCP config
     rm -f /config/.mcp.json
 fi
@@ -104,16 +120,16 @@ Run `ha core restart` to apply changes.
 - `ha addons` - List add-ons
 EOF
 else
-    bashio::log.info "Existing CLAUDE.md found, preserving it"
+    echo "[INFO] Existing CLAUDE.md found, preserving it"
 fi
 
 # Start API server if enabled
-ENABLE_API=$(bashio::config 'enable_api' 'true')
-API_PORT=$(bashio::config 'api_port' '8080')
-DEFAULT_MODEL=$(bashio::config 'default_model' 'sonnet')
+ENABLE_API=$(config_value 'enable_api' 'true')
+API_PORT=$(config_value 'api_port' '8080')
+DEFAULT_MODEL=$(config_value 'default_model' 'sonnet')
 
 if [ "$ENABLE_API" = "true" ]; then
-    bashio::log.info "Starting Claude Code API server on port ${API_PORT}..."
+    echo "[INFO] Starting Claude Code API server on port ${API_PORT}..."
     API_PORT="${API_PORT}" \
     DEFAULT_MODEL="${DEFAULT_MODEL}" \
     SUPERVISOR_TOKEN="${SUPERVISOR_TOKEN:-}" \
@@ -121,15 +137,14 @@ if [ "$ENABLE_API" = "true" ]; then
     HOME=/root \
     NODE_PATH="$(npm root -g)" \
     node /api-server.js &
-    bashio::log.info "API server started — POST to /api/prompt to send prompts"
+    echo "[INFO] API server started — POST to /api/prompt to send prompts"
 else
-    bashio::log.info "Claude Code API server disabled"
+    echo "[INFO] Claude Code API server disabled"
 fi
 
-bashio::log.info "Starting Claude Code terminal on port 7681..."
+echo "[INFO] Starting Claude Code terminal on port 7681..."
 
 # Write environment to a file that persists for the session
-# This ensures tmux sessions have access to all required variables
 cat > /data/.claude_env << EOF
 export HOME=/root
 export ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-}"
@@ -138,7 +153,7 @@ export SUPERVISOR_TOKEN="${SUPERVISOR_TOKEN:-}"
 export TERM=xterm-256color
 EOF
 
-# Source the env file in shell profiles so tmux sessions get it
+# Source the env file in shell profiles
 cat > /root/.bashrc << 'BASHRC'
 source /data/.claude_env 2>/dev/null || true
 BASHRC
@@ -148,7 +163,6 @@ source /data/.claude_env 2>/dev/null || true
 ZSHRC
 
 # Configure tmux for better terminal handling
-# Tip: Hold Shift while selecting to copy text
 cat > /root/.tmux.conf << 'TMUXCONF'
 set -g mouse on
 set -g history-limit 50000
@@ -156,15 +170,11 @@ set -g default-terminal "xterm-256color"
 set -ga terminal-overrides ",xterm-256color:Tc"
 set -s escape-time 0
 set -g status off
-# Keep the session alive even if the window command exits
 set -g remain-on-exit on
 TMUXCONF
 
-# Create wrapper script directory and script
+# Create wrapper script that ttyd will call
 mkdir -p /usr/local/bin
-
-# Create a wrapper script that ttyd will call
-# This script attaches to existing session or creates new one
 cat > /usr/local/bin/claude-terminal << 'WRAPPER'
 #!/bin/bash
 source /data/.claude_env 2>/dev/null || true
@@ -183,7 +193,6 @@ chmod +x /usr/local/bin/claude-terminal
 tmux kill-server 2>/dev/null || true
 
 # Start ttyd with the wrapper script
-# --writable allows input
 exec ttyd \
     --port 7681 \
     --writable \
