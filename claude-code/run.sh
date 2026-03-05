@@ -22,6 +22,15 @@ ln -sf /data/.claude /root/.claude
 
 bashio::log.info "Claude Code config stored persistently in /data/.claude"
 
+# Restore .claude.json from backup if missing
+if [ ! -f /root/.claude.json ] && [ -d /root/.claude/backups ]; then
+    BACKUP=$(ls -t /root/.claude/backups/.claude.json.backup.* 2>/dev/null | head -1)
+    if [ -n "$BACKUP" ]; then
+        cp "$BACKUP" /root/.claude.json
+        bashio::log.info "Restored .claude.json from backup: $BACKUP"
+    fi
+fi
+
 # Configure Home Assistant MCP integration
 ENABLE_HA_MCP=$(bashio::config 'enable_ha_mcp' 'true')
 HA_MCP_URL=$(bashio::config 'ha_mcp_url' '')
