@@ -18,8 +18,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install ttyd from GitHub releases (not in Debian repos)
-RUN ARCH=$(dpkg --print-architecture) && \
-    curl -fsSL "https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.${ARCH}" -o /usr/local/bin/ttyd && \
+# Map dpkg arch names to ttyd release names (arm64->aarch64, amd64->x86_64)
+RUN DPKG_ARCH=$(dpkg --print-architecture) && \
+    case "$DPKG_ARCH" in \
+      arm64) TTYD_ARCH=aarch64 ;; \
+      amd64) TTYD_ARCH=x86_64 ;; \
+      *) TTYD_ARCH=$DPKG_ARCH ;; \
+    esac && \
+    curl -fsSL "https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.${TTYD_ARCH}" -o /usr/local/bin/ttyd && \
     chmod +x /usr/local/bin/ttyd
 
 # Install Claude Code via native installer
