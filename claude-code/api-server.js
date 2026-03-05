@@ -56,7 +56,7 @@ function runClaude(prompt, options = {}) {
       '-p',
       '--output-format', 'json',
       '--model', model,
-      '--dangerously-skip-permissions',
+      '--permission-mode', 'bypassPermissions',
       '--no-session-persistence'
     ];
 
