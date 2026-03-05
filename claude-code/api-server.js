@@ -144,10 +144,10 @@ app.get('/api/diag', async (req, res) => {
   } catch (e) {
     results.auth_error = e.stderr ? e.stderr.toString().trim() : e.message;
   }
-  // Quick test: run claude -p with minimal flags
+  // Quick test: run claude -p with minimal flags, prompt via stdin
   try {
-    results.test = execFileSync('claude', ['-p', '--output-format', 'text', '--no-session-persistence', '--tools', '', 'Say hi'], {
-      env, timeout: 30000, cwd: '/config'
+    results.test = execFileSync('claude', ['-p', '--output-format', 'text', '--no-session-persistence'], {
+      env, timeout: 30000, cwd: '/config', input: 'Say hi in 3 words'
     }).toString().trim();
   } catch (e) {
     results.test_error = (e.stderr ? e.stderr.toString().trim() : '') + ' | ' + (e.stdout ? e.stdout.toString().trim() : '') + ' | exit:' + e.status;
