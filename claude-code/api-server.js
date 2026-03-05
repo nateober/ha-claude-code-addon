@@ -128,6 +128,33 @@ function runClaude(prompt, options = {}) {
   });
 }
 
+// Diagnostic endpoint
+app.get('/api/diag', async (req, res) => {
+  const { execFileSync } = require('child_process');
+  const env = { ...process.env };
+  delete env.CLAUDECODE;
+  const results = {};
+  try {
+    results.version = execFileSync('claude', ['--version'], { env, timeout: 10000 }).toString().trim();
+  } catch (e) {
+    results.version_error = e.message;
+  }
+  try {
+    results.auth = execFileSync('claude', ['auth', 'status'], { env, timeout: 10000 }).toString().trim();
+  } catch (e) {
+    results.auth_error = e.stderr ? e.stderr.toString().trim() : e.message;
+  }
+  results.env_keys = Object.keys(process.env).filter(k => k.match(/CLAUDE|ANTHROPIC|SUPERVISOR|HOME/i));
+  results.claude_json_exists = fs.existsSync('/root/.claude.json');
+  results.claude_dir = fs.existsSync('/root/.claude');
+  try {
+    results.claude_dir_contents = fs.readdirSync('/root/.claude');
+  } catch (e) {
+    results.claude_dir_error = e.message;
+  }
+  res.json(results);
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({
