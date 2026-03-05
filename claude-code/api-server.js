@@ -56,7 +56,7 @@ function runClaude(prompt, options = {}) {
       '-p',
       '--output-format', 'json',
       '--model', model,
-      '--permission-mode', 'bypassPermissions',
+      '--permission-mode', 'acceptEdits',
       '--no-session-persistence'
     ];
 
@@ -168,7 +168,7 @@ app.get('/api/diag', async (req, res) => {
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
-    version: '2.3.3',
+    version: '2.3.4',
     api_key_set: !!process.env.ANTHROPIC_API_KEY
   });
 });
