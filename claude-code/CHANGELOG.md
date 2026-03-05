@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.5.0] - 2026-03-05
+## [2.5.1] - 2026-03-05
 
 ### Changed
 - **Switched to Debian base image** (`node:20-slim`) for native Claude Code installer support
