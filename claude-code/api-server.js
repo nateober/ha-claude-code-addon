@@ -67,19 +67,34 @@ function runClaude(prompt, options = {}) {
     let stdout = '';
     let stderr = '';
 
+    // Remove CLAUDECODE env var entirely to avoid nested session detection
+    const env = { ...process.env };
+    delete env.CLAUDECODE;
+
     const proc = spawn('claude', args, {
       cwd: '/config',
-      env: { ...process.env, CLAUDECODE: '' },
-      timeout: timeout * 1000
+      env
     });
 
-    proc.stdout.on('data', (data) => { stdout += data.toString(); });
-    proc.stderr.on('data', (data) => { stderr += data.toString(); });
+    // Handle timeout manually since spawn doesn't support it
+    const timer = setTimeout(() => {
+      proc.kill('SIGTERM');
+    }, timeout * 1000);
+
+    proc.stdout.on('data', (data) => {
+      stdout += data.toString();
+      console.log('[claude stdout]', data.toString().substring(0, 200));
+    });
+    proc.stderr.on('data', (data) => {
+      stderr += data.toString();
+      console.error('[claude stderr]', data.toString().substring(0, 200));
+    });
 
     proc.on('close', (code) => {
+      clearTimeout(timer);
       const duration = Date.now() - startTime;
       if (code !== 0) {
-        reject(new Error(stderr || `claude exited with code ${code}`));
+        reject(new Error(stderr || stdout || `claude exited with code ${code}`));
       } else {
         let response;
         try {
@@ -92,7 +107,10 @@ function runClaude(prompt, options = {}) {
       }
     });
 
-    proc.on('error', (err) => reject(err));
+    proc.on('error', (err) => {
+      clearTimeout(timer);
+      reject(err);
+    });
   });
 }
 
