@@ -58,7 +58,7 @@ function runClaude(prompt, options = {}) {
       '--model', model,
       '--dangerously-skip-permissions',
       '--no-session-persistence',
-      '--debug'
+      '--debug-file', '/tmp/claude-debug.log'
     ];
 
     if (!allowActions) {
@@ -97,11 +97,11 @@ function runClaude(prompt, options = {}) {
 
     proc.stdout.on('data', (data) => {
       stdout += data.toString();
-      console.log('[claude stdout]', data.toString().substring(0, 200));
+      console.log('[claude stdout]', data.toString().substring(0, 500));
     });
     proc.stderr.on('data', (data) => {
       stderr += data.toString();
-      console.error('[claude stderr]', data.toString().substring(0, 200));
+      console.error('[claude stderr]', data.toString().substring(0, 500));
     });
 
     proc.on('close', (code) => {
