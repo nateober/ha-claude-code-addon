@@ -3,8 +3,14 @@ const { spawn } = require('child_process');
 const crypto = require('crypto');
 const http = require('http');
 
+const fs = require('fs');
+
 const app = express();
 app.use(express.json());
+
+// Write empty MCP config for read-only mode
+const EMPTY_MCP_PATH = '/tmp/empty-mcp.json';
+fs.writeFileSync(EMPTY_MCP_PATH, '{"mcpServers":{}}');
 
 const PORT = process.env.API_PORT || 8080;
 const DEFAULT_MODEL = process.env.DEFAULT_MODEL || 'sonnet';
@@ -58,7 +64,7 @@ function runClaude(prompt, options = {}) {
       // Read-only: skip MCP to avoid connection delays, only allow file reads
       args.push('--allowedTools', 'Read,Grep,Glob');
       args.push('--strict-mcp-config');
-      args.push('--mcp-config', '{}');
+      args.push('--mcp-config', EMPTY_MCP_PATH);
     }
 
     if (systemPrompt) {
