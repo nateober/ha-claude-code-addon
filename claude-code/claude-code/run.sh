@@ -2,6 +2,18 @@
 # shellcheck shell=bash
 set -e
 
+# Save auth data on shutdown (before rebuild wipes /data)
+save_auth() {
+    PERSIST_DIR="/config/.claude-addon"
+    mkdir -p "$PERSIST_DIR"
+    [ -f /root/.claude.json ] && cp /root/.claude.json "$PERSIST_DIR/.claude.json" 2>/dev/null
+    for f in /data/.claude/credentials.json /data/.claude/.oauth* /data/.claude/settings.json /data/.claude/statsig_user_id; do
+        [ -f "$f" ] && cp "$f" "$PERSIST_DIR/" 2>/dev/null
+    done
+    echo "[INFO] Auth data saved to persistent storage"
+}
+trap save_auth SIGTERM SIGINT EXIT
+
 # Helper: read addon config from /data/options.json using jq
 config_value() {
     local key="$1"
@@ -30,22 +42,48 @@ fi
 export HOME=/root
 export CLAUDE_CODE_DISABLE_NONINTERACTIVE_HINT=1
 
-# Use /data for persistent storage (survives container restarts)
-# This stores Claude Code auth tokens and settings
+# Persistent storage strategy:
+#   /data/.claude   — survives container restarts (Docker volume)
+#   /config/.claude-addon/ — survives rebuilds (HA config directory)
+# We use /config/.claude-addon/ as the source of truth for auth,
+# and sync to /data/.claude for runtime use.
+
+PERSIST_DIR="/config/.claude-addon"
+mkdir -p "$PERSIST_DIR"
+
+# Restore auth from persistent storage into /data
 mkdir -p /data/.claude
+if [ -f "$PERSIST_DIR/credentials.json" ]; then
+    cp "$PERSIST_DIR/credentials.json" /data/.claude/credentials.json 2>/dev/null || true
+    echo "[INFO] Restored Claude credentials from persistent storage"
+fi
+if [ -f "$PERSIST_DIR/.claude.json" ]; then
+    cp "$PERSIST_DIR/.claude.json" /root/.claude.json
+    echo "[INFO] Restored .claude.json from persistent storage"
+fi
+# Restore any other auth files (OAuth tokens, settings)
+for f in "$PERSIST_DIR"/.oauth* "$PERSIST_DIR"/settings.json "$PERSIST_DIR"/statsig_user_id; do
+    [ -f "$f" ] && cp "$f" /data/.claude/ 2>/dev/null || true
+done
+
 rm -rf /root/.claude
 ln -sf /data/.claude /root/.claude
 
-echo "[INFO] Claude Code config stored persistently in /data/.claude"
+echo "[INFO] Claude Code auth stored persistently in $PERSIST_DIR"
 
-# Restore .claude.json from backup if missing
-if [ ! -f /root/.claude.json ] && [ -d /root/.claude/backups ]; then
-    BACKUP=$(ls -t /root/.claude/backups/.claude.json.backup.* 2>/dev/null | head -1)
-    if [ -n "$BACKUP" ]; then
-        cp "$BACKUP" /root/.claude.json
-        echo "[INFO] Restored .claude.json from backup: $BACKUP"
-    fi
-fi
+# Background task: periodically save auth back to persistent storage
+(
+    while true; do
+        sleep 60
+        # Save .claude.json (OAuth tokens, session data)
+        [ -f /root/.claude.json ] && cp /root/.claude.json "$PERSIST_DIR/.claude.json" 2>/dev/null
+        # Save credentials and other auth files from .claude/
+        for f in /data/.claude/credentials.json /data/.claude/.oauth* /data/.claude/settings.json /data/.claude/statsig_user_id; do
+            [ -f "$f" ] && cp "$f" "$PERSIST_DIR/" 2>/dev/null
+        done
+    done
+) &
+echo "[INFO] Auth persistence watcher started (syncs every 60s)"
 
 # Configure Home Assistant MCP integration
 ENABLE_HA_MCP=$(config_value 'enable_ha_mcp' 'true')
