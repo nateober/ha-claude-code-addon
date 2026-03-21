@@ -38,7 +38,7 @@ WORKDIR /
 RUN npm install -g express
 
 # Copy API server
-ARG API_VERSION=2.6.1
+ARG API_VERSION=2.6.2
 COPY api-server.js /api-server.js
 
 # Install oh-my-zsh for better shell experience

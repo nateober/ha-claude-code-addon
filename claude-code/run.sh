@@ -211,9 +211,9 @@ set -g status off
 set -g remain-on-exit on
 TMUXCONF
 
-# Create wrapper script that ttyd will call
+# Create claude wrapper that auto-restarts
 mkdir -p /usr/local/bin
-cat > /usr/local/bin/claude-terminal << 'WRAPPER'
+cat > /usr/local/bin/claude-loop << 'WRAPPER'
 #!/bin/bash
 source /data/.claude_env 2>/dev/null || true
 cd /config
@@ -224,6 +224,20 @@ while true; do
     echo 'Claude exited. Restarting in 2s... (Ctrl-C again to get a shell)'
     sleep 2
 done
+WRAPPER
+chmod +x /usr/local/bin/claude-loop
+
+# Create wrapper that ttyd calls — attaches to tmux session
+# tmux prevents ttyd scroll-to-top issues by managing its own viewport
+cat > /usr/local/bin/claude-terminal << 'WRAPPER'
+#!/bin/bash
+source /data/.claude_env 2>/dev/null || true
+
+if tmux has-session -t claude 2>/dev/null; then
+    exec tmux attach-session -t claude
+else
+    exec tmux new-session -s claude /usr/local/bin/claude-loop
+fi
 WRAPPER
 chmod +x /usr/local/bin/claude-terminal
 
